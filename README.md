@@ -1,3 +1,3 @@
-# pandazord
+# Pandazord
 
-Monolith Django-postgres approach
+Monolithic Django-postgres approach
