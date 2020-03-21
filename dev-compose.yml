@@ -1,0 +1,53 @@
+version: '3.7'
+
+services:
+
+  postgres_dev:
+    image: 'postgres:12-alpine'
+    
+    env_file:
+      - '.env'
+    
+    ports:
+      - '$DB_PORT:5432'
+    
+    volumes:
+      - postgres_dev:/var/lib/postgresql/data
+    
+    networks:
+      backend_dev:
+        aliases:
+          - postgres_dev
+
+  pgadmin_dev:
+    image: dpage/pgadmin4
+    
+    env_file:
+      - '.env'
+    
+    ports:
+      - '$PGADMIN_PORT:80'
+    
+    volumes:
+      - pgadmin_dev:/var/lib/pgadmin
+    
+    depends_on:
+      - postgres_dev
+    
+    networks:
+      backend_dev:
+        aliases:
+          - pgadmin_dev
+
+networks:
+  backend_dev:
+    driver: bridge
+  
+volumes:
+  postgres_dev:
+    driver: local
+    name: postgres_dev
+  
+  pgadmin_dev:
+    driver: local
+    name: pgadmin_dev
