@@ -11,6 +11,7 @@ ipython = "*"
 django = "*"
 psycopg2-binary = "*"
 django-extensions = "*"
+requests = "*"
 
 [requires]
 python_version = "3.8"
