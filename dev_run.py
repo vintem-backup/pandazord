@@ -1,4 +1,5 @@
 import os
+import sys
 
 def export_env_var(path_to_env_file):
 
@@ -30,8 +31,16 @@ export_env_var('.env')
 command = 'docker-compose -f dev-compose.yml up > docker-compose-devlog 2>&1 &'
 os.system(command)
 
-command = 'chmod +x dev_run.sh'
-os.system(command)
+try:
+    mode = str(sys.argv[1])
+    if (mode == 'server'): shell_to_run = 'dev_run.sh'
+    elif (mode == 'jupyter'): shell_to_run = 'jupyter.sh'
 
-command = 'sh dev_run.sh'
-os.system(command)
+    command = 'chmod +x ' + shell_to_run
+    os.system(command)
+
+    command = 'sh ' + shell_to_run
+    os.system(command)
+
+except:
+    print('Undefined mode')
