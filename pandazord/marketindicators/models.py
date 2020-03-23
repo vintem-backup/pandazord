@@ -1,8 +1,9 @@
-from django.db import models
-
 #TODO: Docstrings and Type annotations
 
-from .common_libs import PriceSeriesFrom
+from django.db import models
+from sharedlibs.models import PriceSeriesFrom
+
+#from .common_libs import PriceSeriesFrom
 
 class Trend:
 
