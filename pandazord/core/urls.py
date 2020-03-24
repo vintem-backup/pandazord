@@ -16,6 +16,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
+admin.site.site_header = "Pandazord Admin"
+admin.site.site_title = "Pandazord Admin Panel"
+admin.site.index_title = "This is your Admin Panel"
+
 urlpatterns = [
     path('admin/', admin.site.urls),
 ]
