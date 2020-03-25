@@ -1,6 +1,10 @@
+"""Neste módulo, estão os objetos responsáveis por controlar o operacional, dando ao usuário a possibilidade
+de inserir e alterar alguns parâmetros.
+
+"""
+
 from django.db import models
 from django.contrib.postgres.fields import JSONField
-#from datetime import datetime
 
 # Create your models here.
 
@@ -8,6 +12,12 @@ TRADE_CHOICES=(
     ('Y', 'yes'),
     ('N', 'no'),
 )
+
+default_requests_limits = {
+    "sampling period" : "1m",
+    "number of samples per request" : 500,
+    "max requests per period" : 1200
+}
 
 default_signal_generator_parameters = {
     'name' : 'SimpleMovingAverageCrossOver',
@@ -70,24 +80,64 @@ default_position_parameters = {
 }
 
 class Default:
-    def signal_generator():
+    """Retorna valores  padrões de alguns campos
+    
+    """
+    def __init__(self):
+        pass
+
+    def signal_generator(self) -> dict:
+        """Valores padrões para o signal_generator
+        
+        """
         return default_signal_generator_parameters
     
-    def stop_loss():
+    def stop_loss(self) -> dict:
+        """Valores padrões para o stop_loss
+        
+        """
         return default_stop_loss_parameters
 
-    def position():
+    def position(self) -> dict:
+        """Valores padrões para o position
+        
+        """
         return default_position_parameters
+    
+    def requests_limits(self) -> dict:
+        """Valores padrões para o requests_limits
+        
+        """
+        return default_requests_limits
+
+
+class Exchange(models.Model):
+    """Objeto django para listar as exchanges e as principais informações das mesmas.
+
+    """
+    name = models.CharField(max_length=15, primary_key=True)
+    api_endpoint_main_url = models.URLField(max_length=200)
+    requests_limits = JSONField(default=Default().requests_limits)
+    
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        db_table = '"exchanges_information"'
+        verbose_name = "Exchange Info"
+        verbose_name_plural = "Exchanges Info"
 
 
 class AssetsControl(models.Model):
+    """Classe pai das listas de ativos operados, e os parãmetros de controle das operações dos mesmos.
 
+    """
     asset_symbol = models.CharField(max_length=8, primary_key=True)
     trade_on = models.CharField(max_length=3, choices=TRADE_CHOICES, default='N')
     available_amount = models.FloatField(null=True, blank=True, default=0.0)
-    signal_parameters = JSONField(default=Default.signal_generator)
-    stop_parameters = JSONField(default=Default.stop_loss)
-    position = JSONField(default=Default.position)
+    signal_parameters = JSONField(default=Default().signal_generator)
+    stop_parameters = JSONField(default=Default().stop_loss)
+    position = JSONField(default=Default().position)
     
     class Meta:
         abstract = True
@@ -96,7 +146,10 @@ class AssetsControl(models.Model):
         return self.asset_symbol
 
 class BinanceAssetsControl(AssetsControl):
+    """Classe filha dos ativos operados na binance
+
+    """
     class Meta:
         db_table = '"assets_control_binance"'
-        verbose_name = "Binance"
-        verbose_name_plural = "Binance"
+        verbose_name = "Asset - Binance"
+        verbose_name_plural = "Assets - Binance"
