@@ -1,31 +1,17 @@
-"""Este módulo traz embarcadas algumas funcionalidades específicas das klines da binance, tais como:
-    
-    - Tratar do pedido de klines, cuidando para não estourar o limite de requests/período;
-    - Verificar o peso das requests já efetuadas naquele minuto corrente;
-    - Retornar o horário do servidor da binance, a fim de proceder a correção dos timestamps
-    dos dados armazenados.
-
-"""
-
-#from django.db import models
-
-# Create your models here.
 import requests
 from datetime import datetime
 import time
 
 class BinanceKlines:
-    """[summary]
-    """
     
-    def __init__(self, asset_symbol:str, candle_interval:str, max_attempts:int):
+    def __init__(self, asset_symbol, candle_interval, max_attempts):
         
         self.asset_symbol = asset_symbol
         self.candle_interval = candle_interval
         self.max_attempts = max_attempts
 
     
-    def get_from(self, start_time: str) -> list:
+    def get_from(self, start_time):
         
         self.start_time = start_time
         
@@ -39,11 +25,9 @@ class BinanceKlines:
 
             try:
 
-                response = requests.get(url); response.raise_for_statufrom datetime import datetime
-import requests
-import os
-from copy import deepcopy
-import psutilsponse.json(); break
+                response = requests.get(url); response.raise_for_status()
+                
+                if (int(response.status_code) == 200): raw_klines = response.json(); break
 
             except (Exception, requests.exceptions.RequestException, 
             requests.exceptions.ConnectionError) as error: time.sleep(5) #TODO: TRATAR EXCEÇÃO AQUI

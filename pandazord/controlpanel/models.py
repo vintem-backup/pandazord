@@ -5,6 +5,7 @@ de inserir e alterar alguns parâmetros.
 
 from django.db import models
 from django.contrib.postgres.fields import JSONField
+from datetime import datetime
 
 # Create your models here.
 
@@ -12,6 +13,11 @@ TRADE_CHOICES=(
     ('Y', 'yes'),
     ('N', 'no'),
 )
+
+AUTO_UPDATE_CHOICES=(
+    ('ON','on'),
+    ('OFF','off'),
+    )
 
 default_requests_limits = {
     "sampling period" : "1m",
@@ -83,28 +89,25 @@ class Default:
     """Retorna valores  padrões de alguns campos
     
     """
-    def __init__(self):
-        pass
-
-    def signal_generator(self) -> dict:
+    def signal_generator() -> dict:
         """Valores padrões para o signal_generator
         
         """
         return default_signal_generator_parameters
     
-    def stop_loss(self) -> dict:
+    def stop_loss() -> dict:
         """Valores padrões para o stop_loss
         
         """
         return default_stop_loss_parameters
 
-    def position(self) -> dict:
+    def position_details() -> dict:
         """Valores padrões para o position
         
         """
         return default_position_parameters
     
-    def requests_limits(self) -> dict:
+    def requests_limits() -> dict:
         """Valores padrões para o requests_limits
         
         """
@@ -137,7 +140,7 @@ class AssetsControl(models.Model):
     available_amount = models.FloatField(null=True, blank=True, default=0.0)
     signal_parameters = JSONField(default=Default().signal_generator)
     stop_parameters = JSONField(default=Default().stop_loss)
-    position = JSONField(default=Default().position)
+    position = JSONField(default=Default().position_details)
     
     class Meta:
         abstract = True
@@ -145,11 +148,39 @@ class AssetsControl(models.Model):
     def __str__(self):
         return self.asset_symbol
 
+
+class BackingTestAssetsAcquisition(models.Model):
+    """Tabela (provisória) para controle da aquisição de dados para backingtest 
+    
+    """
+    asset_symbol = models.CharField(max_length=8, primary_key=True)
+    auto_update = models.CharField(max_length=3, choices=AUTO_UPDATE_CHOICES, default='OFF')
+    status = models.CharField(max_length=8, default='absent')
+    last_updated_by_pid = models.IntegerField(null=True, blank=True)
+    collect_data_since = models.DateTimeField(default = datetime.fromtimestamp(1241893500))
+    
+    class Meta:
+        abstract = True
+
+    def __str__(self):
+        return self.asset_symbol
+
+
+class BinanceBackingTestAcquisition(BackingTestAssetsAcquisition):
+    """Classe filha (provisória) para controle da aquisição de dados de backingtest da binance
+    
+    """
+    class Meta:
+        db_table = '"binance_BT_assets_control"'
+        verbose_name = "Binance - Backing_Test Assets acquisition"
+        verbose_name_plural = "Binance - Backing_Test Assets acquisition"
+
+
 class BinanceAssetsControl(AssetsControl):
     """Classe filha dos ativos operados na binance
 
     """
     class Meta:
         db_table = '"assets_control_binance"'
-        verbose_name = "Asset - Binance"
-        verbose_name_plural = "Assets - Binance"
+        verbose_name = "Binance - Real Trade control by Assets"
+        verbose_name_plural = "Binance - Real Trade control by Assets"
